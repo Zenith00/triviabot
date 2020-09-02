@@ -43,7 +43,7 @@ description = "Aurcore!"
 name = "aurcore"
 optional = false
 python-versions = ">3.8"
-version = "0.1.29"
+version = "0.1.30"
 
 [[package]]
 category = "main"
@@ -51,7 +51,7 @@ description = "Aurflux!"
 name = "aurflux"
 optional = false
 python-versions = ">=3.9,<4.0"
-version = "1.2.73"
+version = "1.2.84"
 
 [package.dependencies]
 aurcore = "*"
@@ -314,6 +314,17 @@ pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
 category = "main"
+description = "Python extension for computing string edit distances and similarities."
+name = "python-levenshtein"
+optional = false
+python-versions = "*"
+version = "0.12.0"
+
+[package.dependencies]
+setuptools = "*"
+
+[[package]]
+category = "main"
 description = "World timezone definitions, modern and historical"
 name = "pytz"
 optional = false
@@ -431,7 +442,7 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [metadata]
-content-hash = "0e817b8b78ec7e3d857d7d35dc8b1a85cbdaf32eac77252ea4e6b55b19c49537"
+content-hash = "9693016ae2514a3a02db1fa5ee3345a3562d690c076b81a5b22d0df4fb6972cf"
 python-versions = "^3.9"
 
 [metadata.files]
@@ -458,12 +469,12 @@ attrs = [
     {file = "attrs-20.1.0.tar.gz", hash = "sha256:0ef97238856430dcf9228e07f316aefc17e8939fc8507e18c6501b761ef1a42a"},
 ]
 aurcore = [
-    {file = "aurcore-0.1.29-py3-none-any.whl", hash = "sha256:73d2f11e2adc859315bc408c4aa1a5090b31444d1dc2d18d541e7695460c62f7"},
-    {file = "aurcore-0.1.29.tar.gz", hash = "sha256:dd89175b4712c6edbf1d5b6cb8ee34c0a9282b06d5ccca6000eae8baf58a0178"},
+    {file = "aurcore-0.1.30-py3-none-any.whl", hash = "sha256:32187f27c4842be3c96e9f6dfb130efd2effc5667d5b949b25f9e376810723e0"},
+    {file = "aurcore-0.1.30.tar.gz", hash = "sha256:462d7a395912c011a69931daaba883498ea58009ab6be90756ba9af1ec863883"},
 ]
 aurflux = [
-    {file = "aurflux-1.2.73-py3-none-any.whl", hash = "sha256:b322ac250796322d3d9a2c958e9c502c46e25c02a92bbd8de1a713649e36a5fe"},
-    {file = "aurflux-1.2.73.tar.gz", hash = "sha256:0d33740c6ee13a31400beb127a75cde1ee787b736806ec11fa90401732eb6934"},
+    {file = "aurflux-1.2.84-py3-none-any.whl", hash = "sha256:c6808315cd38409ab16d9741224d20ec33e9b4cd943d6a030c6fba483cca1135"},
+    {file = "aurflux-1.2.84.tar.gz", hash = "sha256:0ce36f71a04d44cbba9f3b28c28b680d9f22bd49f3418e71a9a006e069ef78d2"},
 ]
 cachetools = [
     {file = "cachetools-4.1.1-py3-none-any.whl", hash = "sha256:513d4ff98dd27f85743a8dc0e92f55ddb1b49e060c2d5961512855cda2c01a98"},
@@ -613,6 +624,9 @@ pyasn1-modules = [
     {file = "pyasn1_modules-0.2.8-py3.5.egg", hash = "sha256:426edb7a5e8879f1ec54a1864f16b882c2837bfd06eee62f2c982315ee2473ed"},
     {file = "pyasn1_modules-0.2.8-py3.6.egg", hash = "sha256:cbac4bc38d117f2a49aeedec4407d23e8866ea4ac27ff2cf7fb3e5b570df19e0"},
     {file = "pyasn1_modules-0.2.8-py3.7.egg", hash = "sha256:c29a5e5cc7a3f05926aff34e097e84f8589cd790ce0ed41b67aed6857b26aafd"},
+]
+python-levenshtein = [
+    {file = "python-Levenshtein-0.12.0.tar.gz", hash = "sha256:033a11de5e3d19ea25c9302d11224e1a1898fe5abd23c61c7c360c25195e3eb1"},
 ]
 pytz = [
     {file = "pytz-2020.1-py2.py3-none-any.whl", hash = "sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed"},

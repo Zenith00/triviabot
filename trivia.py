@@ -1,61 +1,114 @@
-
 from __future__ import annotations
 
+import asyncio as aio
+import random
 import typing as ty
-from aurflux import Aurflux, AurfluxCog
-from aurflux.argh import arghify, Arg, ChannelIDType
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-import TOKENS
-import pathlib
-import pickle
+
+import Levenshtein
 import gspread
+from aurflux import Aurflux, AurfluxCog, AurfluxEvent, MessageContext
+from aurflux.response import Response
+
+import TOKENS
+
+if ty.TYPE_CHECKING:
+    import discord
+
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SPREADSHEET_ID = ""
 
-gspread.service_account()
 
-def load_g_sheets_service():
-    creds = None
-    token = pathlib.Path(TOKENS.TOKENPATH)
-    if token.exists():
-        with token.open(mode="rb") as token_file:
-            creds = pickle.load(token_file)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
-        with token.open("wb") as token_file:
-            pickle.dump(creds, token_file)
+def load_gspread_sheet():
+    gc = gspread.service_account(filename=TOKENS.SA_KEYPATH, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+    sheet = gc.open_by_key(TOKENS.SPREADSHEET_ID).get_worksheet(0)
+    return sheet
 
-    return build('sheets', 'v4', credentials=creds)
-    # Call the Sheets API
-    # sheet = service.spreadsheets()
 
-    # result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-    #                             range=SAMPLE_RANGE_NAME).execute()
-    # values = result.get('values', [])
-    #
-    # if not values:
-    #     print('No data found.')
-    # else:
-    #     print('Name, Major:')
-    #     for row in values:
-    #         # Print columns A and E, which correspond to indices 0 and 4.
-    #         print('%s, %s' % (row[0], row[4]))
+class Question:
+    @staticmethod
+    def parse_row(row: ty.List[str]):
+        return {
+            "question": row[0],
+            "winner"  : row[1],
+            "answer"  : row[2],
+            "choices" : row[3:]
+        }
 
-def load_trivia_questions():
-    service = load_g_sheets_service()
-    service.get(SPREADSHEET_ID)
+    def __init__(self, question: str, winner: str, answer: str, choices: ty.List[str], index: int):
+        self.index = index
+        self.question = question
+        self.winner = winner
+        self.answer = answer
+        self.choices = choices
+
+        self.type_ = "mc" if any(choices) else "fr"
+
+    def is_correct(self, guess: str):
+        if self.type_ == "mc":
+            guess_index = ord(guess[0].lower()) - 97
+            return (0 <= guess_index < len(self.choices)
+                    and self.choices[guess_index] == self.answer)
+
+        elif self.type_ == "fr":
+            return Levenshtein.ratio(guess.lower(), self.answer) > .85
+
+    def __str__(self):
+        if self.type_ == "mc":
+            return "\n".join((
+                self.question,
+                "",
+                *[f'{chr(i + 97)}) {option}' for i, option in enumerate(self.choices)]
+            ))
+        elif self.type_ == "fr":
+            return self.question
+
 
 class Interface(AurfluxCog):
+
+    def load_questions(self):
+        self.sheet = load_gspread_sheet()
+        self.questions = [Question(**Question.parse_row(question), index=index) for index, question in enumerate(self.sheet.get_all_values()[1:], start=1)]
+        random.shuffle(self.questions)
+
     def __init__(self, aurflux: Aurflux):
         super().__init__(aurflux)
-        # self.G_SHEETS_SERVICE = load_g_sheets_service()
+        self.sheet = None
+        self.questions = None
+        self.load_questions()
 
     def route(self):
-        pass
+        @self.register
+        @self.aurflux.commandeer(name="ask", parsed=False)
+        async def _(ctx: MessageContext, *_):
+            """
+            Asks a random question
+            :param ctx:
+            :param _:
+            :return:
+            """
+            try:
+                question = self.questions.pop()
+            except IndexError:
+                yield Response("Out of questions!")
+                return
+            yield Response(content=str(question), reaction=None)
+            lock = aio.Lock()
+
+            async def is_winner(ev: AurfluxEvent) -> bool:
+                async with lock:
+                    return question.is_correct(ev.args[0].content)
+
+            winner: discord.Message = (await self.aurflux.router.wait_for(":message", check=is_winner)).args[0]
+            yield Response(content=f"{winner.author.mention} got it correct! {question.answer}")
+            self.sheet.update_cell(question.index + 1, 2, f"{winner.author} {winner.author.mention}")
+
+        @self.register
+        @self.aurflux.commandeer(name="refresh", parsed=False)
+        async def _(ctx: MessageContext, *_):
+            """
+            Pulls questions & resets asked questions
+            :param ctx:
+            :param _:
+            :return:
+            """
+            self.load_questions()
+            return Response(content=f"Downloaded {len(self.questions)} questions")

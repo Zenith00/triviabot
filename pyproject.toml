@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "triviabot"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 authors = ["Zenith <z@zenith.dev>"]
 
@@ -14,6 +14,7 @@ aurflux = "^1.2.71"
 google-auth-httplib2 = "^0.0.4"
 google-auth-oauthlib = "^0.4.1"
 gspread = "^3.6.0"
+python-Levenshtein = "^0.12.0"
 
 [tool.poetry.dev-dependencies]
 
