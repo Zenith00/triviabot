@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import typing as ty
 import aurflux
-import aurcore
+import aurcore as aur
 import TOKENS
 
 
@@ -10,21 +10,22 @@ import trivia
 
 class Triviabot:
     def __init__(self):
-        self.event_router = aurcore.event.EventRouter(name="triviabot")
-        self.aurflux = aurflux.Aurflux("triviabot", admin_id=TOKENS.ADMIN_ID, parent_router=self.event_router, builtins=False)
+        self.event_router = aur.EventRouterHost(name="triviabot")
+        self.flux_client = aurflux.FluxClient("triviabot", admin_id=TOKENS.ADMIN_ID, parent_router=self.event_router, builtins=True)
 
-        self.aurflux.router.endpoint(":ready")(lambda ev: print("Ready!"))
+        # self.aurflux.router.endpoint(":ready")(lambda ev: print("Ready!"))
 
     async def startup(self, token: str):
-        await self.aurflux.start(token)
+        await self.flux_client.startup(token)
 
     async def shutdown(self):
-        await self.aurflux.logout()
+        await self.flux_client.shutdown()
 
 
 
 triviabot = Triviabot()
 
-triviabot.aurflux.register_cog(trivia.Interface)
+triviabot.flux_client.register_cog(trivia.Trivia)
+print(triviabot.event_router)
 
-aurcore.aiorun(triviabot.startup(token=TOKENS.TRIVIABOT), triviabot.shutdown())
+aur.aiorun(triviabot.startup(token=TOKENS.TRIVIABOT), triviabot.shutdown())

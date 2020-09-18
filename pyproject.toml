@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "triviabot"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = ["Zenith <z@zenith.dev>"]
 
@@ -9,14 +9,15 @@ python = "^3.9"
 "discord.py" = "^1.4.1"
 "discord.py-stubs" = "^1.4.0"
 google-api-python-client = "^1.11.0"
-aurcore = "^0.1.29"
-aurflux = "^1.2.71"
+aurcore = "*"
+aurflux = "*"
 google-auth-httplib2 = "^0.0.4"
 google-auth-oauthlib = "^0.4.1"
 gspread = "^3.6.0"
 python-Levenshtein = "^0.12.0"
 
 [tool.poetry.dev-dependencies]
+pylint = "^2.6.0"
 
 [build-system]
 requires = ["poetry>=0.12"]
