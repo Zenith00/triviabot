@@ -6,6 +6,7 @@ import typing as ty
 import concurrent.futures
 import threading
 import Levenshtein
+import discord
 import aurcore as aur
 import aurflux.cog
 import itertools as itt
@@ -20,9 +21,6 @@ from aurflux.errors import CommandError
 import dataclasses as dtcs
 import TOKENS
 import random as rnd
-
-if ty.TYPE_CHECKING:
-   import discord
 
 EMOJI = {
    "A": "🇦",
@@ -136,12 +134,18 @@ class PointRec:
       print("ADDING POINTS!")
       self.add_points_bulk([member], point_type, [point_override])
 
+   def gen_leaderboard(self, n: int) -> ty.Tuple[ty.List[int], ty.List[int]]:
+      member_ids = self.sheet.col_values(2, value_render_option="UNFORMATTED_VALUE")[1:]
+      member_points = self.sheet.col_values(8, value_render_option="UNFORMATTED_VALUE")[1:]
+
+      return zip(*sorted(zip(member_ids, member_points), key=lambda x: x[1], reverse=True)[:n])
+
 
 class Trivia(aurflux.cog.FluxCog):
 
    @property
    def default_auths(self) -> ty.List[Record]:
-      return []
+      return [Record(rule="ALLOW", target_id=discord.Permissions(manage_guild=True).value, target_type="PERMISSION")]
 
    def load_questions(self):
       sheet = GC.open_by_key(TOKENS.QUESTIONS_SPREADSHEET).get_worksheet(0)
@@ -255,8 +259,19 @@ class Trivia(aurflux.cog.FluxCog):
          :param args:
          :return:
          """
+         try:
+            num = int(args.strip())
+         except ValueError as e:
+            raise CommandError(str(e))
+         except AttributeError:  # args is None
+            num = 10
 
+         embed = discord.Embed(title="🎖Leaderboard🎖")
+         m_ids, points = self.points.gen_leaderboard(num)
+         embed.add_field(name="Member", value="\n".join([str(ctx.guild.get_member(int(m_id))) for m_id in m_ids]), inline=True)
+         embed.add_field(name="Points", value="\n".join([str(p) for p in points]), inline=True)
 
+         return Response(embed=embed)
 
       @self._commandeer(name="addpoints", parsed=False)
       async def _(ctx: GuildMessageContext, args):
@@ -267,7 +282,8 @@ class Trivia(aurflux.cog.FluxCog):
          Adds points to `<member>`'s score
          ==
          #points: the number of points to add;
-         [type]: [easter/trivia/workshop/karaoke/e/t/w/k] The category of points to add;
+         [type]: [easter/trivia/workshop/karaoke/e/t/w/k]
+         The category of points to add;
          [manual/m]: [manual/m];
          <member>: the member to add points to;
          (#pts): number of points to add if `[type]` is manual/m
@@ -297,7 +313,8 @@ class Trivia(aurflux.cog.FluxCog):
          target_member = ctx.guild.get_member(target_member_id)
          if not target_member:
             raise CommandError(f"Could not find member in server: <@{target_member_id}>")
-
+         with open("points.log", "a") as f:
+            f.write(f"{target_member_id}, {matched_type}, {manual}")
          self.executor.submit(self.points.add_points, target_member, matched_type, manual).add_done_callback(lambda f: f.result())
          yield Response(f"Added {POINT_TYPES[matched_type]['per'] or manual} points to {target_member.mention} for {matched_type}")
 
@@ -318,6 +335,7 @@ class Trivia(aurflux.cog.FluxCog):
          :param args:
          :return:
          """
+
          async def auto_loop():
             print("Entering autoask loop")
             while ctx.config["autoask"]:
@@ -330,8 +348,9 @@ class Trivia(aurflux.cog.FluxCog):
                if not autoask_dests:
                   continue
                dest = ctx.flux.get_channel(rnd.choice(autoask_dests))
-               await ctx.channel.send(f"Automatically asking a question in {dest}\nCall autoask or triviaconf to disable")
+               await ctx.channel.send(f"Automatically asking a question in {dest.mention}\nCall autoask or triviaconf to disable")
                await self.router.submit(FluxEvent(self.flux, ":question", ctx=GuildTextChannelContext(flux=self.flux, channel=dest)))
+
          print("==")
          print(ctx.config["autoask"])
          async with ctx.flux.CONFIG.writeable_conf(ctx) as cfg_w:
@@ -361,7 +380,7 @@ class Trivia(aurflux.cog.FluxCog):
          :param target:
          :return:
          """
-         triviaconfs = ["autoask","autoask_every_m","autoask_channels","wait_for_s"]
+         triviaconfs = ["autoask", "autoask_every_m", "autoask_channels", "wait_for_s"]
          if not args:
             yield Response("```" + "\n".join([f'{k} : {ctx.config[k]}' for k in triviaconfs]) + "\n```")
             return
