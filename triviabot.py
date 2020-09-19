@@ -4,6 +4,7 @@ import typing as ty
 import aurflux
 import aurcore as aur
 import TOKENS
+import discord
 
 
 import trivia
@@ -11,7 +12,7 @@ import trivia
 class Triviabot:
     def __init__(self):
         self.event_router = aur.EventRouterHost(name="triviabot")
-        self.flux_client = aurflux.FluxClient("triviabot", admin_id=TOKENS.ADMIN_ID, parent_router=self.event_router, builtins=True)
+        self.flux_client = aurflux.FluxClient("triviabot", admin_id=TOKENS.ADMIN_ID, parent_router=self.event_router, builtins=True,activity=discord.Game(name="🥚 BANANAS") )
 
         # self.aurflux.router.endpoint(":ready")(lambda ev: print("Ready!"))
 

@@ -45,7 +45,7 @@ GC = gspread.service_account(filename=TOKENS.SA_KEYPATH, scopes=["https://www.go
 POINT_TYPES = {
    "trivia"  : {"per": 5, "max": 50, "col": "C"},
    "easter"  : {"per": 50, "max": 50, "col": "D"},
-   "workshop": {"per": 10, "max": 50, "col": "E"},
+   "workshop": {"per": 25, "max": 50, "col": "E"},
    "karaoke" : {"per": 25, "max": 50, "col": "F"},
    "manual"  : {"per": 0, "max": None, "col": "G"},
 }
@@ -65,14 +65,19 @@ class Question:
       self.question = question
       self.answer = answer
       self.choices = [choice for choice in choices if choice]
-      self.type_ = "mc" if len(choices) > 1 else "fr"
+
+      self.type_ = "mc" if len(self.choices) > 1 else "fr"
       if self.type_ == "mc":
          if self.answer not in self.choices:
             print("ERROR!")
             print(self.index)
             print(self.question)
             print("--")
-
+      if self.type_ == "fr":
+         print("ERROR!")
+         print(self.index)
+         print(self.question)
+         print("--")
    @property
    def correct_letter(self) -> str:
       return chr(ord("A") + self.choices.index(self.answer))

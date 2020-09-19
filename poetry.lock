@@ -57,7 +57,7 @@ description = "Aurcore!"
 name = "aurcore"
 optional = false
 python-versions = ">3.8"
-version = "1.1.16"
+version = "1.1.18"
 
 [[package]]
 category = "main"
@@ -65,7 +65,7 @@ description = "Aurflux!"
 name = "aurflux"
 optional = false
 python-versions = ">=3.9,<4.0"
-version = "3.0.16"
+version = "3.0.21"
 
 [package.dependencies]
 aurcore = "*"
@@ -584,12 +584,12 @@ attrs = [
     {file = "attrs-20.2.0.tar.gz", hash = "sha256:26b54ddbbb9ee1d34d5d3668dd37d6cf74990ab23c828c2888dccdceee395594"},
 ]
 aurcore = [
-    {file = "aurcore-1.1.16-py3-none-any.whl", hash = "sha256:a1202472660df6aed67c69c1aa622d6748af4af14b71dcac7e27c924faac093d"},
-    {file = "aurcore-1.1.16.tar.gz", hash = "sha256:02ec4dd9c4f5d1bd3b792c9ceb54ded0fa4b7f8bbf90ad055c441eb05bc9afde"},
+    {file = "aurcore-1.1.18-py3-none-any.whl", hash = "sha256:6f9b0d85f8f56f2f60035968c142ad0859d7d88e213e51e4244f30079c99e942"},
+    {file = "aurcore-1.1.18.tar.gz", hash = "sha256:e05e1060a52d0764e8054fa3c55b5b5ca35dcba064d9b1e44340f4ea7f7970be"},
 ]
 aurflux = [
-    {file = "aurflux-3.0.16-py3-none-any.whl", hash = "sha256:5b578b9be9363c2d08cdb1168cfffe97dfbe2c85cf61692bc8ec8759a2e2c7b0"},
-    {file = "aurflux-3.0.16.tar.gz", hash = "sha256:6061241e8ffe53e969a1d4b42be706e422e97a8da91814bd7e803048e7bbdb7f"},
+    {file = "aurflux-3.0.21-py3-none-any.whl", hash = "sha256:cf5ed01aac70e536263396ea8f533e8dbe6ce2457f231de9d4544fbcd922c738"},
+    {file = "aurflux-3.0.21.tar.gz", hash = "sha256:6605d3097c5d8b67e4723ef2daffaef5d3015aaa67d304a0347bcf2e7b9e6970"},
 ]
 cachetools = [
     {file = "cachetools-4.1.1-py3-none-any.whl", hash = "sha256:513d4ff98dd27f85743a8dc0e92f55ddb1b49e060c2d5961512855cda2c01a98"},
